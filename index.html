@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Load Balancer</title>
+  <meta name="description" content="A live load balancer: six routing algorithms, a pool of servers with queues, health checks and failures, and the latency each choice costs.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700..800&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="bar">
+    <div>
+      <h1>Load Balancer</h1>
+      <p class="sub">Every request has to go somewhere. How the balancer chooses decides how slow the slowest ones get.</p>
+    </div>
+    <a class="code-link" href="https://github.com/himeshahuja/load-balancer" target="_blank" rel="noreferrer">Code</a>
+  </header>
+
+  <main class="layout">
+    <section class="stage" aria-label="Load balancer and servers">
+      <canvas id="view" role="img" aria-label="Requests flowing from clients through the load balancer to each server"></canvas>
+      <div id="menu" class="menu" hidden>
+        <p class="menu__title" id="menu-title"></p>
+        <button type="button" data-act="power"></button>
+        <button type="button" data-act="slow"></button>
+      </div>
+      <ul class="legend" aria-label="Legend">
+        <li><i class="sw sw--busy"></i>Busy worker</li>
+        <li><i class="sw sw--idle"></i>Idle worker</li>
+        <li><i class="sw sw--queue"></i>Queued request</li>
+        <li><i class="dot dot--ok"></i>Request</li>
+        <li><i class="dot dot--err"></i>Failed request</li>
+      </ul>
+    </section>
+
+    <aside class="panel">
+      <label class="field">
+        <span>Algorithm</span>
+        <select id="algo"></select>
+      </label>
+      <p class="desc" id="algo-desc"></p>
+
+      <label class="field">
+        <span>Traffic <b id="rps-val">180 req/s</b></span>
+        <input type="range" id="rps" min="0" max="320" step="10" value="180" aria-label="Requests per second">
+      </label>
+
+      <dl class="stats">
+        <div><dt>p50</dt><dd id="s-p50">–</dd></div>
+        <div><dt>p99</dt><dd id="s-p99">–</dd></div>
+        <div><dt>Served</dt><dd id="s-served">–</dd></div>
+        <div><dt>Failed</dt><dd id="s-failed">–</dd></div>
+      </dl>
+
+      <div>
+        <p class="chart-label"><span>p95 latency, last 40 s</span><span id="chart-max"></span></p>
+        <canvas id="chart" class="chart" aria-hidden="true"></canvas>
+      </div>
+
+      <div class="row">
+        <button type="button" id="compare" class="btn btn--primary" style="flex:1">Compare all</button>
+      </div>
+      <table id="results" hidden>
+        <thead><tr><th>Algorithm</th><th>p50</th><th>p99</th><th>Failed</th></tr></thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="row">
+        <button type="button" id="add" class="btn">Add server</button>
+        <button type="button" id="remove" class="btn">Remove</button>
+        <button type="button" id="play" class="btn">Pause</button>
+      </div>
+      <label class="field">
+        <span>Speed <b id="speed-val">1×</b></span>
+        <input type="range" id="speed" min="0" max="4" step="1" value="2" aria-label="Simulation speed">
+      </label>
+
+      <ol class="feed" id="feed" aria-live="polite"></ol>
+    </aside>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
