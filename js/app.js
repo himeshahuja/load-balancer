@@ -1,8 +1,8 @@
 import { Sim, ALGORITHMS, compareAll } from './sim.js';
 
-const SPEEDS = [0.25, 0.5, 1, 2, 4];
+const SPEEDS = [0.1, 0.25, 0.5, 1, 2];
 const MAX_SERVERS = 8;
-const DOT_RATE = 46; // most request dots drawn per simulated second
+const DOT_RATE = 14; // most request dots drawn per real second
 const DOT_MS = 420; // how long a dot takes to reach its server
 const $ = (id) => document.getElementById(id);
 
@@ -14,7 +14,7 @@ const menu = $('menu');
 
 let sim = new Sim({ rps: 180, algo: 'roundRobin' });
 let running = true;
-let speed = 1;
+let speed = 0.25;
 let colors = readColors();
 let size = { w: 0, h: 0 };
 let geo = { lb: null, cards: [] };
@@ -25,13 +25,13 @@ let menuServer = null;
 // Until the visitor touches anything, a short demo plays on a loop.
 let autopilot = true;
 const DEMO = [
-  { at: 14000, run: () => setAlgo('leastConn') },
-  { at: 30000, run: () => sim.crash(sim.servers[1]) },
-  { at: 44000, run: () => sim.recover(sim.servers[1]) },
-  { at: 52000, run: () => setAlgo('p2c') },
-  { at: 66000, run: () => setAlgo('roundRobin') },
+  { at: 7000, run: () => setAlgo('leastConn') },
+  { at: 14000, run: () => sim.crash(sim.servers[1]) },
+  { at: 20000, run: () => sim.recover(sim.servers[1]) },
+  { at: 24000, run: () => setAlgo('p2c') },
+  { at: 30000, run: () => setAlgo('roundRobin') },
 ];
-const DEMO_LOOP = 70000;
+const DEMO_LOOP = 32000;
 let demoStep = 0;
 let demoStart = 0;
 
@@ -46,7 +46,7 @@ function readColors() {
 
 function wire() {
   sim.on((type, d) => {
-    if (type === 'routed' && Math.random() < Math.min(1, DOT_RATE / Math.max(1, sim.rps))) {
+    if (type === 'routed' && Math.random() < Math.min(1, DOT_RATE / Math.max(1, sim.rps * speed))) {
       dots.push({ server: d.server.name, t0: sim.now });
     } else if (type === 'failed') {
       marks.push({ server: d.server.name, t0: sim.now });
