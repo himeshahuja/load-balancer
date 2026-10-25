@@ -95,8 +95,6 @@ export class Sim {
     const s = {
       name: `server-${this.servers.length + 1}`,
       speed, // service time multiplier: 2.5 means 2.5× slower
-      base: speed, // speed before any slowdown
-      slowed: false,
       workers,
       cap: 24, // queue slots
       busy: 0,
@@ -353,10 +351,10 @@ export class Sim {
     this.note(`${s.name} came back up`, 'ok');
   }
 
-  setSlow(s, slow) {
-    s.slowed = slow;
-    s.speed = slow ? s.base * 3 : s.base;
-    this.note(slow ? `${s.name} slowed down to 3× service time` : `${s.name} back to normal speed`, slow ? 'warn' : 'ok');
+  setSpeed(s, speed, label) {
+    if (s.speed === speed) return;
+    s.speed = speed;
+    this.note(`${s.name} now ${label}`, speed > 1 ? 'warn' : 'ok');
   }
 }
 

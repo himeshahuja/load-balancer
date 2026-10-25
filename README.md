@@ -10,8 +10,8 @@ A load balancer in front of a pool of servers, simulated in the browser. Switch 
 
 - **Algorithm:** switch between six routing strategies while traffic is flowing.
 - **Traffic:** change requests per second.
-- **Click a server** to crash it, bring it back, or slow it down 3×.
-- **Add server / Remove:** change the pool, from 2 to 8 servers. Pick each new server's speed (2× faster to 4× slower) and worker count (2, 4 or 8) before adding it.
+- **Click a server** to crash it, bring it back, or set its speed, from 4× faster to 5× slower than normal.
+- **Add server / Remove:** change the pool, from 2 to 8 servers. Pick each new server's speed (4× faster to 5× slower) and worker count (2, 4 or 8) before adding it.
 - **Compare all:** replays the same seeded traffic through every algorithm for 40 simulated seconds and ranks them by latency.
 
 Until you touch anything, a short demo loops. It starts on round robin, switches to least connections, crashes a server and brings it back.

@@ -26,7 +26,10 @@
       <div id="menu" class="menu" hidden>
         <p class="menu__title" id="menu-title"></p>
         <button type="button" data-act="power"></button>
-        <button type="button" data-act="slow"></button>
+        <label class="field menu__speed">
+          <span>Speed <b id="menu-speed-val"></b></span>
+          <input type="range" id="menu-speed" min="0" max="10" step="1" aria-label="Server speed">
+        </label>
       </div>
       <ul class="legend" aria-label="Legend">
         <li><i class="sw sw--busy"></i>Busy worker</li>
@@ -69,13 +72,11 @@
         <tbody></tbody>
       </table>
 
+      <label class="field">
+        <span>New server speed <b id="new-speed-val">normal</b></span>
+        <input type="range" id="new-speed" min="0" max="10" step="1" value="4" aria-label="New server speed">
+      </label>
       <div class="row">
-        <select id="new-speed" aria-label="New server speed">
-          <option value="0.5">2× faster</option>
-          <option value="1" selected>Normal speed</option>
-          <option value="2.5">2.5× slower</option>
-          <option value="4">4× slower</option>
-        </select>
         <select id="new-workers" aria-label="New server workers">
           <option value="2">2 workers</option>
           <option value="4" selected>4 workers</option>

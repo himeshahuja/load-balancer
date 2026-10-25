@@ -65,8 +65,11 @@ function setAlgo(algo) {
 
 const takeOver = () => { autopilot = false; };
 
+// Server speeds are service time multipliers: 2 takes twice as long, 0.5 half as long.
+const SERVER_SPEEDS = [0.25, 1 / 3, 0.5, 2 / 3, 1, 1.5, 2, 2.5, 3, 4, 5];
 const times = (n) => Number(n.toFixed(1));
 const speedLabel = (v) => (v > 1 ? `${times(v)}× slower` : v < 1 ? `${times(1 / v)}× faster` : '');
+const speedIndex = (v) => SERVER_SPEEDS.reduce((best, x, i) => (Math.abs(x - v) < Math.abs(SERVER_SPEEDS[best] - v) ? i : best), 0);
 
 // --- Geometry -----------------------------------------------------------------------
 
@@ -349,9 +352,20 @@ $('results').addEventListener('click', (e) => {
   setAlgo(row.dataset.algo);
 });
 
-$('add').addEventListener('click', () => { takeOver(); if (sim.servers.length < MAX_SERVERS) sim.addServer({ speed: Number($('new-speed').value), workers: Number($('new-workers').value) }); });
+$('add').addEventListener('click', () => { takeOver(); if (sim.servers.length < MAX_SERVERS) sim.addServer({ speed: SERVER_SPEEDS[Number($('new-speed').value)], workers: Number($('new-workers').value) }); });
 $('remove').addEventListener('click', () => { takeOver(); sim.removeServer(); });
 $('play').addEventListener('click', () => { running = !running; $('play').textContent = running ? 'Pause' : 'Play'; });
+$('new-speed').addEventListener('input', (e) => {
+  $('new-speed-val').textContent = speedLabel(SERVER_SPEEDS[Number(e.target.value)]) || 'normal';
+});
+$('menu-speed').addEventListener('input', (e) => {
+  if (!menuServer) return;
+  const v = SERVER_SPEEDS[Number(e.target.value)];
+  const label = speedLabel(v) || 'normal';
+  $('menu-speed-val').textContent = label;
+  sim.setSpeed(menuServer, v, label === 'normal' ? 'at normal speed' : label);
+  renderPanel();
+});
 $('speed').addEventListener('input', (e) => {
   speed = SPEEDS[Number(e.target.value)];
   $('speed-val').textContent = `${speed}×`;
@@ -362,10 +376,10 @@ $('speed').addEventListener('input', (e) => {
 function openMenu(s, x, y) {
   menuServer = s;
   $('menu-title').textContent = s.name;
-  const [power, slow] = menu.querySelectorAll('button');
+  const power = menu.querySelector('button');
   power.textContent = s.up ? 'Crash' : 'Bring back up';
-  slow.textContent = s.slowed ? 'Back to normal speed' : 'Slow down 3×';
-  slow.disabled = !s.up;
+  $('menu-speed').value = speedIndex(s.speed);
+  $('menu-speed-val').textContent = speedLabel(s.speed) || 'normal';
   menu.hidden = false;
   const mw = menu.offsetWidth, mh = menu.offsetHeight;
   menu.style.left = `${Math.min(size.w - mw - 8, Math.max(8, x))}px`;
@@ -385,7 +399,6 @@ menu.addEventListener('click', (e) => {
   const act = e.target.closest('button')?.dataset.act;
   if (!act || !menuServer) return;
   if (act === 'power') (menuServer.up ? sim.crash(menuServer) : sim.recover(menuServer));
-  if (act === 'slow') sim.setSlow(menuServer, !menuServer.slowed);
   closeMenu();
   renderPanel();
 });
