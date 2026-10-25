@@ -82,7 +82,7 @@ export class Sim {
     this.listeners = new Set();
     this.rr = 0;
     this.servers = [];
-    for (const s of servers ?? [{ speed: 1 }, { speed: 1 }, { speed: 1 }, { speed: 1 }, { speed: 2.5 }]) this.addServer(s.speed, true);
+    for (const s of servers ?? [{ speed: 1 }, { speed: 1 }, { speed: 1 }, { speed: 1 }, { speed: 2.5 }]) this.addServer(s, true);
     this.rebuildRing();
     this.nextArrival = this.gap();
     this.nextHealth = HEALTH_EVERY;
@@ -91,11 +91,13 @@ export class Sim {
 
   // --- Setup ------------------------------------------------------------------------
 
-  addServer(speed = 1, silent = false) {
+  addServer({ speed = 1, workers = 4 } = {}, silent = false) {
     const s = {
       name: `server-${this.servers.length + 1}`,
       speed, // service time multiplier: 2.5 means 2.5× slower
-      workers: 4,
+      base: speed, // speed before any slowdown
+      slowed: false,
+      workers,
       cap: 24, // queue slots
       busy: 0,
       queue: [],
@@ -352,7 +354,8 @@ export class Sim {
   }
 
   setSlow(s, slow) {
-    s.speed = slow ? 3 : 1;
+    s.slowed = slow;
+    s.speed = slow ? s.base * 3 : s.base;
     this.note(slow ? `${s.name} slowed down to 3× service time` : `${s.name} back to normal speed`, slow ? 'warn' : 'ok');
   }
 }

@@ -65,6 +65,9 @@ function setAlgo(algo) {
 
 const takeOver = () => { autopilot = false; };
 
+const times = (n) => Number(n.toFixed(1));
+const speedLabel = (v) => (v > 1 ? `${times(v)}× slower` : v < 1 ? `${times(1 / v)}× faster` : '');
+
 // --- Geometry -----------------------------------------------------------------------
 
 function resize() {
@@ -172,13 +175,13 @@ function draw() {
     ctx.font = '700 15px "Bricolage Grotesque", "Inter Tight", sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(s.name, x + 14, mid - 4);
-    const status = !s.up ? (s.healthy ? 'not responding' : 'out of rotation') : !s.healthy ? 'rejoining' : s.speed > 1 ? `${s.speed}× slower` : 'healthy';
-    ctx.fillStyle = !s.up ? c.down : s.speed > 1 ? c.accent : c.muted;
+    const status = !s.up ? (s.healthy ? 'not responding' : 'out of rotation') : !s.healthy ? 'rejoining' : speedLabel(s.speed) || 'healthy';
+    ctx.fillStyle = !s.up ? c.down : s.speed !== 1 ? c.accent : c.muted;
     ctx.font = '500 12px "Inter Tight", sans-serif';
     ctx.fillText(status, x + 14, mid + 14);
 
     // Workers.
-    const ws = Math.min(22, chh - 30);
+    const ws = Math.min(22, chh - 30, (cw * 0.42) / s.workers - 5);
     const wx = x + Math.min(160, cw * 0.32);
     for (let i = 0; i < s.workers; i++) {
       rr(wx + i * (ws + 5), mid - ws / 2, ws, ws, 4);
@@ -333,7 +336,7 @@ $('compare').addEventListener('click', () => {
   btn.textContent = 'Comparing…';
   // Let the label paint before the (synchronous) runs.
   setTimeout(() => {
-    lastResults = compareAll({ rps: sim.rps, servers: sim.servers.map((s) => ({ speed: s.speed })) });
+    lastResults = compareAll({ rps: sim.rps, servers: sim.servers.map((s) => ({ speed: s.speed, workers: s.workers })) });
     btn.disabled = false;
     btn.textContent = 'Compare all';
     renderResults();
@@ -346,7 +349,7 @@ $('results').addEventListener('click', (e) => {
   setAlgo(row.dataset.algo);
 });
 
-$('add').addEventListener('click', () => { takeOver(); if (sim.servers.length < MAX_SERVERS) sim.addServer(); });
+$('add').addEventListener('click', () => { takeOver(); if (sim.servers.length < MAX_SERVERS) sim.addServer({ speed: Number($('new-speed').value), workers: Number($('new-workers').value) }); });
 $('remove').addEventListener('click', () => { takeOver(); sim.removeServer(); });
 $('play').addEventListener('click', () => { running = !running; $('play').textContent = running ? 'Pause' : 'Play'; });
 $('speed').addEventListener('input', (e) => {
@@ -361,7 +364,7 @@ function openMenu(s, x, y) {
   $('menu-title').textContent = s.name;
   const [power, slow] = menu.querySelectorAll('button');
   power.textContent = s.up ? 'Crash' : 'Bring back up';
-  slow.textContent = s.speed > 1 ? 'Back to normal speed' : 'Slow down 3×';
+  slow.textContent = s.slowed ? 'Back to normal speed' : 'Slow down 3×';
   slow.disabled = !s.up;
   menu.hidden = false;
   const mw = menu.offsetWidth, mh = menu.offsetHeight;
@@ -382,7 +385,7 @@ menu.addEventListener('click', (e) => {
   const act = e.target.closest('button')?.dataset.act;
   if (!act || !menuServer) return;
   if (act === 'power') (menuServer.up ? sim.crash(menuServer) : sim.recover(menuServer));
-  if (act === 'slow') sim.setSlow(menuServer, menuServer.speed === 1);
+  if (act === 'slow') sim.setSlow(menuServer, !menuServer.slowed);
   closeMenu();
   renderPanel();
 });

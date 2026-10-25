@@ -239,3 +239,5 @@ tbody tr:hover td { background: var(--raised); }
 tr.is-current td { font-weight: 600; }
 .best { color: var(--accent); font-weight: 700; }
 .bad { color: var(--down); }
+
+.row select { flex: 1; min-width: 0; }

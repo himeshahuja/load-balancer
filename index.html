@@ -70,6 +70,19 @@
       </table>
 
       <div class="row">
+        <select id="new-speed" aria-label="New server speed">
+          <option value="0.5">2× faster</option>
+          <option value="1" selected>Normal speed</option>
+          <option value="2.5">2.5× slower</option>
+          <option value="4">4× slower</option>
+        </select>
+        <select id="new-workers" aria-label="New server workers">
+          <option value="2">2 workers</option>
+          <option value="4" selected>4 workers</option>
+          <option value="8">8 workers</option>
+        </select>
+      </div>
+      <div class="row">
         <button type="button" id="add" class="btn">Add server</button>
         <button type="button" id="remove" class="btn">Remove</button>
         <button type="button" id="play" class="btn">Pause</button>

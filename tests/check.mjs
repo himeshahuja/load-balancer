@@ -23,8 +23,8 @@ for (const algo of Object.keys(ALGORITHMS)) {
         const s = sim.servers[(Math.random() * sim.servers.length) | 0];
         const r = Math.random();
         if (r < 0.35) (s.up ? sim.crash(s) : sim.recover(s));
-        else if (r < 0.6) sim.setSlow(s, s.speed === 1);
-        else if (r < 0.7 && sim.servers.length < 8) sim.addServer();
+        else if (r < 0.6) sim.setSlow(s, !s.slowed);
+        else if (r < 0.7 && sim.servers.length < 8) sim.addServer({ speed: [0.5, 1, 2.5, 4][(Math.random() * 4) | 0], workers: [2, 4, 8][(Math.random() * 3) | 0] });
         else if (r < 0.8) sim.removeServer();
         else sim.rps = Math.round(Math.random() * 400);
       }
